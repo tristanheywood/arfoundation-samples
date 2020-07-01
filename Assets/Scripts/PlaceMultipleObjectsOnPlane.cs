@@ -93,6 +93,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 this.placedObjects.Remove(deletedGO);
                 Destroy(deletedGO);
                 Debug.Log("HIT");
+                Handheld.Vibrate(); 
 
             }
         }
