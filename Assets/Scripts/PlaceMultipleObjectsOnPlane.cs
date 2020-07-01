@@ -40,22 +40,34 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         List<GameObject> placedObjects = new List<GameObject>();
 
-        GameObject drinkText; 
+        GameObject drinkText;
+
+        bool is_pc; // prototype by running on pc when possible (no ar)
 
         void Awake()
         {
             m_RaycastManager = GetComponent<ARRaycastManager>();
 
-            camera = GameObject.Find("AR Camera");
-            Debug.Log("Initial camera position: " + camera.transform.position.ToString());
+            this.camera = GameObject.Find("AR Camera");
+            Debug.Log("Initial camera position: " + this.camera.transform.position.ToString());
 
             this.drinkText = GameObject.Find("DrinkText");
             Debug.Log("Have drink text: " + this.drinkText.ToString());
-            this.drinkText.SetActive(false); 
+            this.drinkText.SetActive(false);
+
+            this.is_pc = true; 
         }
 
         void Update()
         {
+            if (this.is_pc)
+            {
+                this.AddMissileAt(new Pose(Vector3.zero, Quaternion.identity));
+                this.camera.transform.position = this.camera.transform.position - new Vector3(0, 0, 2); 
+
+                this.is_pc = false; 
+            }
+
             if (Input.touchCount > 0)
             {
                 Touch touch = Input.GetTouch(0);
@@ -65,17 +77,7 @@ namespace UnityEngine.XR.ARFoundation.Samples
                     if (m_RaycastManager.Raycast(touch.position, s_Hits, TrackableType.PlaneWithinPolygon))
                     {
                         Pose hitPose = s_Hits[0].pose;
-
-                        spawnedObject = Instantiate(m_PlacedPrefab, hitPose.position, hitPose.rotation);
-
-                        this.placedObjects.Add(spawnedObject); 
-
-                        Debug.Log("Placed object at : " + spawnedObject.transform.position.ToString());
-
-                        if (onPlacedObject != null)
-                        {
-                            onPlacedObject();
-                        }
+                        this.AddMissileAt(hitPose); 
                     }
                 }
             }
@@ -86,9 +88,11 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
             foreach (GameObject go in this.placedObjects)
             {
-                go.transform.position = Vector3.MoveTowards(go.transform.position, this.camera.transform.position, 0.005f); 
+                // go.transform.position = Vector3.MoveTowards(go.transform.position, this.camera.transform.position, 0.005f); 
 
-                if (Vector3.Distance(go.transform.position, this.camera.transform.position) < 0.075)
+                //Debug.Log(go.transform.position.ToString()); 
+
+                if (Vector3.Distance(go.transform.position, this.camera.transform.position) < 0.1)
                 {
                     deletedGO = go; 
                 }
@@ -104,6 +108,20 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 this.drinkText.SetActive(true);
                 Invoke("HideDrinkText", 0.5f); 
 
+            }
+        }
+
+        void AddMissileAt(Pose hitPose)
+        {
+            spawnedObject = Instantiate(m_PlacedPrefab, hitPose.position, hitPose.rotation);
+
+            this.placedObjects.Add(spawnedObject);
+
+            Debug.Log("Placed object at : " + spawnedObject.transform.position.ToString());
+
+            if (onPlacedObject != null)
+            {
+                onPlacedObject();
             }
         }
 
