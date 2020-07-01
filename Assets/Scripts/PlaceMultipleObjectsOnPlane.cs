@@ -38,14 +38,20 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         static List<ARRaycastHit> s_Hits = new List<ARRaycastHit>();
 
-        List<GameObject> placedObjects = new List<GameObject>(); 
+        List<GameObject> placedObjects = new List<GameObject>();
+
+        GameObject drinkText; 
 
         void Awake()
         {
             m_RaycastManager = GetComponent<ARRaycastManager>();
 
             camera = GameObject.Find("AR Camera");
-            Debug.Log("Initial camera position: " + camera.transform.position.ToString()); 
+            Debug.Log("Initial camera position: " + camera.transform.position.ToString());
+
+            this.drinkText = GameObject.Find("DrinkText");
+            Debug.Log("Have drink text: " + this.drinkText.ToString());
+            this.drinkText.SetActive(false); 
         }
 
         void Update()
@@ -93,9 +99,17 @@ namespace UnityEngine.XR.ARFoundation.Samples
                 this.placedObjects.Remove(deletedGO);
                 Destroy(deletedGO);
                 Debug.Log("HIT");
-                Handheld.Vibrate(); 
+                Handheld.Vibrate();
+
+                this.drinkText.SetActive(true);
+                Invoke("HideDrinkText", 0.5f); 
 
             }
+        }
+
+        void HideDrinkText()
+        {
+            this.drinkText.SetActive(false); 
         }
     }
 }
