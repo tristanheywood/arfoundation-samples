@@ -34,11 +34,18 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
         ARRaycastManager m_RaycastManager;
 
+        GameObject camera; 
+
         static List<ARRaycastHit> s_Hits = new List<ARRaycastHit>();
+
+        List<GameObject> placedObjects = new List<GameObject>(); 
 
         void Awake()
         {
             m_RaycastManager = GetComponent<ARRaycastManager>();
+
+            camera = GameObject.Find("AR Camera");
+            Debug.Log("Initial camera position: " + camera.transform.position.ToString()); 
         }
 
         void Update()
@@ -55,12 +62,38 @@ namespace UnityEngine.XR.ARFoundation.Samples
 
                         spawnedObject = Instantiate(m_PlacedPrefab, hitPose.position, hitPose.rotation);
 
+                        this.placedObjects.Add(spawnedObject); 
+
+                        Debug.Log("Placed object at : " + spawnedObject.transform.position.ToString());
+
                         if (onPlacedObject != null)
                         {
                             onPlacedObject();
                         }
                     }
                 }
+            }
+
+            // Debug.Log("Camera: " + this.camera.transform.position.ToString()); 
+
+            GameObject deletedGO = null; 
+
+            foreach (GameObject go in this.placedObjects)
+            {
+                go.transform.position = Vector3.MoveTowards(go.transform.position, this.camera.transform.position, 0.005f); 
+
+                if (Vector3.Distance(go.transform.position, this.camera.transform.position) < 0.075)
+                {
+                    deletedGO = go; 
+                }
+            }
+
+            if (deletedGO != null)
+            {
+                this.placedObjects.Remove(deletedGO);
+                Destroy(deletedGO);
+                Debug.Log("HIT");
+
             }
         }
     }
