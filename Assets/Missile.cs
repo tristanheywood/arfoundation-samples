@@ -9,6 +9,8 @@ public class Missile : MonoBehaviour
     [SerializeField]
     float speed;
 
+    float duration; 
+
     GameObject arCamera;
 
     MeshRenderer meshRenderer;
@@ -25,7 +27,9 @@ public class Missile : MonoBehaviour
 
         this.sphereTransform = this.transform.parent; 
 
-        this.speed = 0.5f;
+        this.speed = 0.3f;
+
+        this.duration = 5;
 
         StartCoroutine(Flash()); 
     }
